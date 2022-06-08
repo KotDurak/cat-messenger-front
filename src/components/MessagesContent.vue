@@ -1,5 +1,7 @@
 <template>
-    $END$
+    <div class="col-md-9">
+        Messages content
+    </div>
 </template>
 
 <script>
