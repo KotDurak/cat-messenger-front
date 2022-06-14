@@ -5,7 +5,8 @@
             <li
                 v-for="contact in contacts"
                 :key="contact.id"
-                class="list-group-item"
+                class="list-group-item contact-item"
+                @click="loadMessages(contact.id)"
             >
                 {{contact.name}}
             </li>
@@ -20,10 +21,17 @@
                 type: Array,
                 default: []
             }
+        },
+        methods: {
+            async loadMessages(id) {
+                this.$emit('load-messages', id);
+            }
         }
     }
 </script>
 
 <style scoped>
-
+    .contact-item{
+        cursor: pointer;
+    }
 </style>

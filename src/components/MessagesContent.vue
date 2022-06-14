@@ -1,12 +1,20 @@
 <template>
     <div class="col-md-9">
-        Messages content
+        <div v-for="message in messages" :key="message.id">
+            {{message.message}}
+        </div>
     </div>
 </template>
 
 <script>
     export default {
-        name: "MessagesContent"
+        name: "MessagesContent",
+        props: {
+            messages: {
+                type: Array,
+                default: []
+            }
+        }
     }
 </script>
 
