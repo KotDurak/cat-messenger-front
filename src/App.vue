@@ -12,6 +12,9 @@
       </div>
       <messages-content
               :messages="messages"
+              :interlocutor="interlocutor"
+              :user="getUser"
+              class="messages-content"
       />
     </div>
   </div>
@@ -32,6 +35,7 @@
         name: 'Cat Messenger',
         contacts: [],
         messages: [],
+        interlocutor:{}
       }
     },
     methods: {
@@ -43,6 +47,8 @@
         }
       },
       async loadMessages(id) {
+        await this.loadInterlocuter(id);
+
         if (id === 3) {
           this.messages = [
             {id:800, user_id: 3, message: 'Откройте дверь'}
@@ -50,6 +56,13 @@
         } else {
           this.messages = fakeMessages;
         }
+      },
+      async loadInterlocuter(id) {
+        this.interlocutor = {
+          id: id,
+          name: 'Tigr',
+          photo: 'https://icdn.lenta.ru/images/2021/12/30/17/20211230175542538/square_1280_9852fabcde7147edee00deeafde2a2e0.jpg'
+        };
       },
       async loginWithLoad() {
         await this.login()
@@ -78,5 +91,8 @@
 </script>
 
 <style>
-
+  .messages-content{
+    max-height: 400px;
+    overflow-y: scroll;
+  }
 </style>
