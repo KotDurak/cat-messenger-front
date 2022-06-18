@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="row" :class="{'my-message': isMy}">
+        <div class="row gx-0" :class="{'my-message': isMy}">
             <div class="col-9 chat-message">
                 {{message.message}}
             </div>

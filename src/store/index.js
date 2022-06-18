@@ -7,7 +7,6 @@ export default createStore({
     }),
     getters: {
         getUser(state) {
-
             return state.user;
         },
         getIsAuth(state) {
