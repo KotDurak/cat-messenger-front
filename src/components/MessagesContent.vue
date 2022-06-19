@@ -40,15 +40,12 @@
             messagesDown() {
                 const el = this.$refs.list;
                 el.scroll(0, el.scrollHeight);
-                console.log('message down');
             }
         },
-        watch: {
-            needDown(newVal, oldVal) {
-               if (newVal) {
-                   this.messagesDown();
-                   this.$emit('messages-down')
-               }
+        updated() {
+            if (this.needDown) {
+                this.messagesDown();
+                this.$emit('messages-down');
             }
         }
     }

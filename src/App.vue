@@ -9,7 +9,8 @@
           v-if="isAuth"
       />
       <div class="col-md-3" v-else>
-        <button class="btn btn-success" @click="loginWithLoad">Логин</button>
+        <button class="btn btn-success" @click="openLogin">Логин</button>
+        <button class="btn btn-success" style="margin-left: 20px" @click="openRegister">Регистрация</button>
       </div>
       <div class="col-md-9" v-if="isAuth">
         <messages-content
@@ -27,6 +28,9 @@
         />
       </div>
     </div>
+    <modal-dialog v-model:show="showLogin">
+      <login-form @login="loginWithLoad"/>
+    </modal-dialog>
   </div>
 </template>
 
@@ -38,9 +42,10 @@
   import fakeMessages from '@/fake-data/messages';
   import {mapState, mapActions, mapGetters, mapMutations} from 'vuex';
   import MessageForm from "@/components/MessageForm";
+  import LoginForm from "@/components/LoginForm";
 
   export default {
-    components: {MessageForm, MessagesContent, ContactList, MainHeader},
+    components: {LoginForm, MessageForm, MessagesContent, ContactList, MainHeader},
     data() {
       return {
         name: 'Cat Messenger',
@@ -49,6 +54,7 @@
         interlocutor:null,
         message: '',
         needDown:false,
+        showLogin: false
       }
     },
     methods: {
@@ -82,12 +88,21 @@
           photo: 'https://icdn.lenta.ru/images/2021/12/30/17/20211230175542538/square_1280_9852fabcde7147edee00deeafde2a2e0.jpg'
         };
       },
-      async loginWithLoad() {
+      openLogin() {
+        this.showLogin = true;
+      },
+      openRegister() {
+        console.log('Open register')
+      },
+      async loginWithLoad(user) {
+        this.setLogin(user);
         await this.login()
         await this.loadContacts();
+        this.showLogin = false;
       },
       ...mapMutations({
-          setUser: 'setUser'
+          setUser: 'setUser',
+          setLogin: 'setLoginData',
       }),
       ...mapActions({
           login: 'login'
@@ -103,6 +118,8 @@
           message: message,
           user_id: user.id,
         });
+
+        this.needDown = true;
       }
     },
     computed: {
