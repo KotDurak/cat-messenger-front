@@ -1,7 +1,6 @@
 <template>
   <div class="container">
-    <main-header :title="name"/>
-    <h1>{{message}}</h1>
+    <main-header :title="name" :user="user"/>
     <div class="row">
       <contact-list
           :contacts="contacts"
@@ -31,6 +30,11 @@
     <modal-dialog v-model:show="showLogin">
       <login-form @login="loginWithLoad"/>
     </modal-dialog>
+    <modal-dialog v-model:show="showRegister">
+      <register-form
+            @register="registerUser"
+      />
+    </modal-dialog>
   </div>
 </template>
 
@@ -43,9 +47,11 @@
   import {mapState, mapActions, mapGetters, mapMutations} from 'vuex';
   import MessageForm from "@/components/MessageForm";
   import LoginForm from "@/components/LoginForm";
+  import ModalDialog from "@/components/UI/ModalDialog";
+  import RegisterForm from "@/components/RegisterForm";
 
   export default {
-    components: {LoginForm, MessageForm, MessagesContent, ContactList, MainHeader},
+    components: {RegisterForm, ModalDialog, LoginForm, MessageForm, MessagesContent, ContactList, MainHeader},
     data() {
       return {
         name: 'Cat Messenger',
@@ -54,7 +60,8 @@
         interlocutor:null,
         message: '',
         needDown:false,
-        showLogin: false
+        showLogin: false,
+        showRegister: false,
       }
     },
     methods: {
@@ -85,20 +92,28 @@
         this.interlocutor = {
           id: id,
           name: 'Tigr',
-          photo: 'https://icdn.lenta.ru/images/2021/12/30/17/20211230175542538/square_1280_9852fabcde7147edee00deeafde2a2e0.jpg'
         };
       },
       openLogin() {
         this.showLogin = true;
       },
       openRegister() {
-        console.log('Open register')
+        this.showRegister = true;
       },
       async loginWithLoad(user) {
         this.setLogin(user);
         await this.login()
         await this.loadContacts();
         this.showLogin = false;
+        this.showRegister = false;
+      },
+      async registerUser(user) {
+        const id = 777;
+        //процесс регистрации
+        await this.loginWithLoad({
+          login: user.nick,
+          password: user.password,
+        })
       },
       ...mapMutations({
           setUser: 'setUser',
