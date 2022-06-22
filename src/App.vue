@@ -88,6 +88,9 @@
         }
 
       },
+      async loadMoreMessages() {
+        console.log('Load more messages')
+      },
       async loadInterlocuter(id) {
         this.interlocutor = {
           id: id,
@@ -145,6 +148,7 @@
     },
     mounted() {
       this.loadContacts();
+      console.log(process.env.VUE_APP_SOCKET_SERVER)
     }
   }
 </script>
@@ -152,6 +156,7 @@
 <style>
   .messages-content{
     max-height: 400px;
-    overflow-y: scroll;
+    overflow-y: auto;
+    height: 400px;
   }
 </style>

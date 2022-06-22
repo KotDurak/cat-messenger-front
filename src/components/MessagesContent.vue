@@ -1,5 +1,6 @@
 <template>
-    <div class="col-md-12 gx-0" ref="list">
+    <div class="col-md-12 gx-0" ref="list" id="messages_wrapper">
+        <div v-intersection="{rootElem:'#messages_wrapper', callback: loadMoreMessages}" class="observer"></div>
         <user-message
             v-for="message in messages"
             :key="message.id"
@@ -40,6 +41,9 @@
             messagesDown() {
                 const el = this.$refs.list;
                 el.scroll(0, el.scrollHeight);
+            },
+            async loadMoreMessages() {
+                console.log('Load more messages');
             }
         },
         updated() {
