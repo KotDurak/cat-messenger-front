@@ -12,19 +12,18 @@
         <button class="btn btn-success" style="margin-left: 20px" @click="openRegister">Регистрация</button>
       </div>
       <div class="col-md-9" v-if="isAuth">
-        <div class="messages-window row align-items-end">
-          <messages-content
-                  :messages="messages"
-                  :interlocutor="interlocutor"
-                  :user="getUser()"
-                  class="messages-content"
-                  ref="messages"
-                  :need-down="needDown"
-                  @messages-down="this.needDown = false"
-                  @load-messages="loadMoreMessages"
-          />
-        </div>
-
+          <div class="messages-window row align-items-end">
+            <messages-content
+                    :messages="messages"
+                    :interlocutor="interlocutor"
+                    :user="getUser()"
+                    class="messages-content"
+                    ref="messages"
+                     v-model:need-down="needDown"
+                    @messages-down="this.needDown = false"
+                    @load-messages="loadMoreMessages"
+            />
+          </div>
         <message-form
                 v-if="interlocutor !== null"
                 @send-message="sendMessage"
@@ -133,7 +132,6 @@
             });
           }
 
-          console.log(newMessages)
           this.messages = [...newMessages ,...this.messages]
       },
       ...mapMutations({

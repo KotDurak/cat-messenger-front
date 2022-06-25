@@ -18,7 +18,6 @@
         components: {UserMessage},
         date() {
             return {
-                needScrollDown: false,
                 waitingNewMessages: false,
             }
         },
@@ -56,14 +55,17 @@
 
                 const lastMessage = this.messages[this.messages.length - 1];
                 this.waitingNewMessages = true;
-                this.$emit('load-messages', lastMessage);
 
+                if (!this.needDown) {
+                    this.$emit('load-messages', lastMessage);
+                }
+
+                this.$emit('update:need-down', false);
             }
         },
         updated() {
             if (this.needDown) {
                 this.messagesDown();
-                this.$emit('messages-down');
             } else if (this.waitingNewMessages) {
                 this.messagesDown(20);
             }
