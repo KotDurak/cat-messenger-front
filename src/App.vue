@@ -12,15 +12,19 @@
         <button class="btn btn-success" style="margin-left: 20px" @click="openRegister">Регистрация</button>
       </div>
       <div class="col-md-9" v-if="isAuth">
-        <messages-content
-                :messages="messages"
-                :interlocutor="interlocutor"
-                :user="getUser()"
-                class="messages-content"
-                ref="messages"
-                :need-down="needDown"
-                @messages-down="this.needDown = false"
-        />
+        <div class="messages-window row align-items-end">
+          <messages-content
+                  :messages="messages"
+                  :interlocutor="interlocutor"
+                  :user="getUser()"
+                  class="messages-content"
+                  ref="messages"
+                  :need-down="needDown"
+                  @messages-down="this.needDown = false"
+                  @load-messages="loadMoreMessages"
+          />
+        </div>
+
         <message-form
                 v-if="interlocutor !== null"
                 @send-message="sendMessage"
@@ -84,7 +88,7 @@
         }
 
         if (this.messages.length > 0) {
-          this.needDown= true
+          this.needDown = true
         }
 
       },
@@ -117,6 +121,20 @@
           login: user.nick,
           password: user.password,
         })
+      },
+      loadMoreMessages(lastMessage) {
+          const newMessages = [];
+          console.log(lastMessage.id);
+          for (let i = 0; i < 10; i++) {
+            newMessages.push({
+              id: new Date().getTime() + i + lastMessage.id,
+              message: `Message auto genereted ${i}`,
+              user_id: 888,
+            });
+          }
+
+          console.log(newMessages)
+          this.messages = [...newMessages ,...this.messages]
       },
       ...mapMutations({
           setUser: 'setUser',
@@ -154,9 +172,12 @@
 </script>
 
 <style>
+  .messages-window{
+    height: 400px;
+  }
+
   .messages-content{
     max-height: 400px;
     overflow-y: auto;
-    height: 400px;
   }
 </style>

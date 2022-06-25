@@ -2,11 +2,11 @@
     <div class="col-md-12 gx-0" ref="list" id="messages_wrapper">
         <div v-intersection="{rootElem:'#messages_wrapper', callback: loadMoreMessages}" class="observer"></div>
         <user-message
-            v-for="message in messages"
-            :key="message.id"
-            :user="message.user_id === user.id ? user : interlocutor"
-            :message="message"
-            :is-my="message.user_id === user.id"
+                v-for="message in messages"
+                :key="message.id"
+                :user="message.user_id === user.id ? user : interlocutor"
+                :message="message"
+                :is-my="message.user_id === user.id"
         />
     </div>
 </template>
@@ -18,7 +18,8 @@
         components: {UserMessage},
         date() {
             return {
-                needScrollDown: false
+                needScrollDown: false,
+                waitingNewMessages: false,
             }
         },
         props: {
@@ -38,18 +39,33 @@
             }
         },
         methods: {
-            messagesDown() {
+            messagesDown(height = null) {
                 const el = this.$refs.list;
-                el.scroll(0, el.scrollHeight);
+
+                if (!height) {
+                    height = el.scrollHeight;
+                }
+
+                el.scroll(0, height);
+                this.waitingNewMessages = false;
             },
             async loadMoreMessages() {
-                console.log('Load more messages');
+                if (this.messages.length === 0 || !this.interlocutor) {
+                    return;
+                }
+
+                const lastMessage = this.messages[this.messages.length - 1];
+                this.waitingNewMessages = true;
+                this.$emit('load-messages', lastMessage);
+
             }
         },
         updated() {
             if (this.needDown) {
                 this.messagesDown();
                 this.$emit('messages-down');
+            } else if (this.waitingNewMessages) {
+                this.messagesDown(20);
             }
         }
     }

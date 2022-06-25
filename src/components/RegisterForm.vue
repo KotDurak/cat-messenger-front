@@ -21,15 +21,15 @@
 
             <div class="row">
                 <div class="col">
-                    <label for="age">Возраст  {{age}}</label>
-                    <input v-model="age" type="range" class="form-range" min="18" max="120" id="age">
+                    <label for="age">Дата рождения</label>
+                    <input v-model="birthDay" type="date" class="form-control" min="18" max="120" id="age">
                 </div>
                 <div class="col">
-                    <select class="form-select"  v-model="gender">
-                        <option value="0" selected>Пол</option>
+                    <label for="gender">Пол</label>
+                    <select class="form-select" v-model="gender" id="gender">
+                        <option selected value="0">Не указывать</option>
                         <option value="1">M</option>
                         <option value="2">Ж</option>
-                        <option value="0">Не указывать</option>
                     </select>
                 </div>
             </div>
@@ -48,7 +48,7 @@
                 password:'',
                 passwordConfirm:'',
                 nick:'',
-                age: 18,
+                birthDay: 18,
                 gender:0
             }
         },
