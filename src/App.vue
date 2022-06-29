@@ -107,11 +107,15 @@
         this.showRegister = true;
       },
       async loginWithLoad(user) {
-        this.setLogin(user);
-        await this.login()
-        await this.loadContacts();
-        this.showLogin = false;
-        this.showRegister = false;
+        this.$store.dispatch('auth/login', user).then(async () => {
+          this.setLogin(user);
+          await this.login()
+          await this.loadContacts();
+          this.showLogin = false;
+          this.showRegister = false;
+        })
+
+
       },
       async registerUser(user) {
         const id = 777;
