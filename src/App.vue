@@ -1,17 +1,17 @@
 <template>
   <div class="container">
-    <main-header :title="name" :user="user"/>
+    <main-header :title="name" :user="getUser()"/>
     <div class="row">
       <contact-list
           :contacts="contacts"
           @load-messages="loadMessages"
-          v-if="isAuth"
+          v-if="isUserAuth"
       />
       <div class="col-md-3" v-else>
         <button class="btn btn-success" @click="openLogin">Логин</button>
         <button class="btn btn-success" style="margin-left: 20px" @click="openRegister">Регистрация</button>
       </div>
-      <div class="col-md-9" v-if="isAuth">
+      <div class="col-md-9" v-if="isUserAuth">
           <div class="messages-window row align-items-end">
             <messages-content
                     :messages="messages"
@@ -69,7 +69,7 @@
     },
     methods: {
       async loadContacts() {
-        if (!this.isAuth) {
+        if (!this.isUserAuth) {
           this.contacts = []
         } else {
           this.contacts = fakeContacts
@@ -107,9 +107,7 @@
         this.showRegister = true;
       },
       async loginWithLoad(user) {
-        this.$store.dispatch('auth/login', user).then(async () => {
-          this.setLogin(user);
-          await this.login()
+         this.$store.dispatch('auth/login', user).then(async () => {
           await this.loadContacts();
           this.showLogin = false;
           this.showRegister = false;
@@ -118,8 +116,7 @@
 
       },
       async registerUser(user) {
-        const id = 777;
-        //процесс регистрации
+        const data =  await this.$store.dispatch('auth/register', user);
         await this.loginWithLoad({
           login: user.nick,
           password: user.password,
@@ -127,7 +124,7 @@
       },
       loadMoreMessages(lastMessage) {
           const newMessages = [];
-          console.log(lastMessage.id);
+
           for (let i = 0; i < 10; i++) {
             newMessages.push({
               id: new Date().getTime() + i + lastMessage.id,
@@ -138,16 +135,6 @@
 
           this.messages = [...newMessages ,...this.messages]
       },
-      ...mapMutations({
-          setUser: 'setUser',
-          setLogin: 'setLoginData',
-      }),
-      ...mapActions({
-          login: 'login'
-      }),
-      ...mapGetters({
-        getUser: 'getUser',
-      }),
       sendMessage(message) {
         const user = this.getUser();
 
@@ -158,17 +145,24 @@
         });
 
         this.needDown = true;
-      }
+      },
+      ...mapGetters({
+        getUser: 'auth/getUser'
+      })
     },
     computed: {
-      ...mapState({
-          user: state => state.user,
-          isAuth: state => state.isAuth,
+      ...mapGetters({
+        isUserAuth : 'auth/isUserAuth'
       }),
     },
-    mounted() {
-      this.loadContacts();
-      console.log(process.env.VUE_APP_SOCKET_SERVER)
+    async mounted() {
+      const user = JSON.parse(localStorage.getItem('user'))
+      const data =  await this.$store.dispatch('auth/autologin', user)
+
+      if (data.id) {
+         await this.loadContacts();
+         this.$socket.emit('user_login', {tigr: 'skotina', user_id: data.id})
+      }
     }
   }
 </script>

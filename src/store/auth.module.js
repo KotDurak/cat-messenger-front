@@ -31,6 +31,21 @@ export const auth = {
                     commit('registerFailure');
                     return Promise.reject(error);
                 })
+        },
+        autologin({commit}, user) {
+            if (!user.accessToken) {
+                return
+            }
+
+            return AuthService.autologin(user)
+                .then(response => {
+                    user.nick = response.data.user.nick
+                    commit('loginSuccess', user)
+                    return Promise.resolve(user)
+                }, error => {
+                    commit('registerFailure');
+                    return Promise.reject(error);
+                })
         }
     },
     mutations: {
@@ -51,6 +66,21 @@ export const auth = {
         },
         registerFailure(state) {
             state.status.loggedIn = false
+        }
+    },
+    getters: {
+        isUserAuth(state) {
+            return state.status.loggedIn
+        },
+        getUser(state) {
+            return state.user || {}
+        },
+        getUserId(state) {
+            if (state.user) {
+                return user.id
+            }
+
+            return null
         }
     }
 }

@@ -1,7 +1,7 @@
 <template>
     <div class="row">
         <div class="col-4">
-            <p v-if="user.name">{{user.name}}</p>
+            <p v-if="user.nick">{{user.nick}}</p>
         </div>
         <div class="col-md-8">
             <h2 class="text-center">{{title}}</h2>

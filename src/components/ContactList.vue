@@ -1,6 +1,7 @@
 <template>
     <div class="col-md-3">
         <h3>Контакты</h3>
+        <search-contacts @add-user="addUser"/>
         <ul class="list-group">
             <li
                 v-for="contact in contacts"
@@ -15,7 +16,9 @@
 </template>
 
 <script>
+    import SearchContacts from "@/components/SearchContacts";
     export default {
+        components: {SearchContacts},
         props:{
             contacts: {
                 type: Array,
@@ -25,6 +28,9 @@
         methods: {
             async loadMessages(id) {
                 this.$emit('load-messages', id);
+            },
+            addUser(user) {
+                console.log(user.id, user.nick)
             }
         }
     }

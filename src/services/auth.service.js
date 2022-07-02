@@ -28,6 +28,16 @@ class AuthService{
             gender: user.gender
         })
     }
+
+    autologin(user) {
+        const accessToken = user.accessToken
+
+        return axios.post(API_URL + 'auth/autologin', {
+            id: user.id
+        }, {
+            headers: {'x-access-token': accessToken}
+        })
+    }
 }
 
 export default new AuthService()

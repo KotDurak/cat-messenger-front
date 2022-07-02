@@ -48,7 +48,7 @@
                 password:'',
                 passwordConfirm:'',
                 nick:'',
-                birthDay: 18,
+                birthDay: '',
                 gender:0
             }
         },
@@ -59,7 +59,7 @@
                     password: this.password,
                     passwordConfirm: this.passwordConfirm,
                     nick: this.nick,
-                    age: this.age,
+                    age:  this.birthDay ? new Date(this.birthDay) : null,
                     gender: this.gender,
                 };
 
