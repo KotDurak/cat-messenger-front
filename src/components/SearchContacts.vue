@@ -3,22 +3,23 @@
         <div class="search_contacts">
             <input type="search"
                    class="form-control rounded"
-                   placeholder="Search" aria-label="Search"
+                   placeholder="Ник или email" aria-label="Search"
                    aria-describedby="search-addon"
                    @input="searchUsers"
+                   v-model="searchSting"
             />
             <BootstrapIcon
                     icon="search"
                     size="2x"
                     flip-h />
         </div>
-        <div class="search_contacts_result">
+        <div class="search_contacts_result" v-if="searchSting.length > 2">
             <ul class="list-group">
                 <li
                         class="list-group-item searched_contact"
                         v-for="user in users"
                         :key="user.id"
-                        @click="$emit('add-user', user)"
+                        @click="$emit('create-chat', user)"
                 >
                     {{user.nick}}
                 </li>
@@ -35,12 +36,16 @@
         name: "SearchContacts",
         data() {
           return {
-              users: []
+              users: [],
+              searchSting: ''
           }
         },
         methods: {
             searchUsers:_.debounce(function(e) {
-                console.log(e.target.value)
+                if (!e.target.value || e.target.value.leading < 2) {
+                    return
+                }
+
                 const url = process.env.VUE_APP_SOCKET_SERVER + 'api/contacts/search/' + this.getUserId + '/'  + e.target.value
 
                 axios.get(url).then(response =>  {

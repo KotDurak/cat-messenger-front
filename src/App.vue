@@ -5,6 +5,7 @@
       <contact-list
           :contacts="contacts"
           @load-messages="loadMessages"
+          @create-chat="createChat"
           v-if="isUserAuth"
       />
       <div class="col-md-3" v-else>
@@ -75,16 +76,10 @@
           this.contacts = fakeContacts
         }
       },
-      async loadMessages(id) {
-        await this.loadInterlocuter(id);
+      async loadMessages(user) {
 
-        if (id === 3) {
-          this.messages = [
-            {id:800, user_id: 3, message: 'Откройте дверь'}
-          ];
-        } else {
-          this.messages = fakeMessages;
-        }
+        await this.loadInterlocuter(user);
+        this.messages = []
 
         if (this.messages.length > 0) {
           this.needDown = true
@@ -94,11 +89,13 @@
       async loadMoreMessages() {
         console.log('Load more messages')
       },
-      async loadInterlocuter(id) {
+      async loadInterlocuter(user) {
         this.interlocutor = {
-          id: id,
-          name: 'Tigr',
+          id: user.id,
+          nick: user.nick,
+          type: 'user',
         };
+
       },
       openLogin() {
         this.showLogin = true;
@@ -107,10 +104,11 @@
         this.showRegister = true;
       },
       async loginWithLoad(user) {
-         this.$store.dispatch('auth/login', user).then(async () => {
+          this.$store.dispatch('auth/login', user).then(async () => {
           await this.loadContacts();
           this.showLogin = false;
           this.showRegister = false;
+          this.$socket.emit('user_login', {user_id: this.getUserId});
         })
 
 
@@ -137,6 +135,12 @@
       },
       sendMessage(message) {
         const user = this.getUser();
+        this.$socket.emit('send_message', {
+          message: message,
+          from: user.id,
+          to:this.interlocutor.id,
+          type: this.interlocutor.type,
+        })
 
         this.messages.push({
           id: Date.now(),
@@ -148,20 +152,39 @@
       },
       ...mapGetters({
         getUser: 'auth/getUser'
-      })
+      }),
+      createChat(user) {
+        const contact = {
+          id: user.id,
+          nick: user.nick,
+          online: user.status === 1,
+        }
+
+        const existedContact = this.contacts.find(contact => contact.id === user.id)
+
+        if (!existedContact) {
+          this.contacts = [contact, ...this.contacts]
+        }
+      }
     },
     computed: {
       ...mapGetters({
-        isUserAuth : 'auth/isUserAuth'
+        isUserAuth : 'auth/isUserAuth',
+        getUserId: 'auth/getUserId'
       }),
     },
     async mounted() {
       const user = JSON.parse(localStorage.getItem('user'))
       const data =  await this.$store.dispatch('auth/autologin', user)
 
-      if (data.id) {
+      if (data && data.id) {
          await this.loadContacts();
-         this.$socket.emit('user_login', {tigr: 'skotina', user_id: data.id})
+         this.$socket.emit('user_login', {user_id: user.id})
+      }
+    },
+    sockets: {
+      newMessage(data) {
+        console.log(data)
       }
     }
   }

@@ -33,7 +33,7 @@ export const auth = {
                 })
         },
         autologin({commit}, user) {
-            if (!user.accessToken) {
+            if (!user || !user.accessToken) {
                 return
             }
 
@@ -77,7 +77,7 @@ export const auth = {
         },
         getUserId(state) {
             if (state.user) {
-                return user.id
+                return state.user.id
             }
 
             return null

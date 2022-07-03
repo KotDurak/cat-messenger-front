@@ -1,15 +1,15 @@
 <template>
     <div class="col-md-3">
         <h3>Контакты</h3>
-        <search-contacts @add-user="addUser"/>
+        <search-contacts @create-chat="addUser"/>
         <ul class="list-group">
             <li
                 v-for="contact in contacts"
                 :key="contact.id"
                 class="list-group-item contact-item"
-                @click="loadMessages(contact.id)"
+                @click="loadMessages(contact)"
             >
-                {{contact.name}}
+                {{contact.nick}}
             </li>
         </ul>
     </div>
@@ -17,6 +17,8 @@
 
 <script>
     import SearchContacts from "@/components/SearchContacts";
+    import axios from 'axios'
+
     export default {
         components: {SearchContacts},
         props:{
@@ -26,11 +28,12 @@
             }
         },
         methods: {
-            async loadMessages(id) {
-                this.$emit('load-messages', id);
+            async loadMessages(user) {
+                this.$emit('load-messages', user)
             },
             addUser(user) {
-                console.log(user.id, user.nick)
+                this.$emit('create-chat', user)
+               // this.loadMessages(user)
             }
         }
     }
