@@ -34,7 +34,7 @@ export const messages = {
             try {
                 const response = await getMessagesRequest(state.chatId, state.page, state.limit)
                 commit('setTotalPages', Math.ceil(response.data.meta.count / state.limit))
-                commit('setMessages', [...state.messages, ...response.data.data.reverse()])
+                commit('setMessages', response.data.data.reverse())
             } catch (e) {
                 console.log('Error')
             }
