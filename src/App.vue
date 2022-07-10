@@ -59,41 +59,58 @@
     data() {
       return {
         name: 'Cat Messenger',
-        contacts: [],
-        messages: [],
         interlocutor:null,
         message: '',
         needDown:false,
         showLogin: false,
         showRegister: false,
+        needCheckConnect: false
       }
     },
     methods: {
+      ...mapActions({
+        loadContactsById: 'contacts/loadContacts',
+        fetchMessages: 'messages/fetchMessages',
+        fetchMoreMessages: 'messages/fetchMoreMessages',
+      }),
+      ...mapGetters({
+        getUser: 'auth/getUser',
+        getMessagesCount: 'messages/getCount'
+      }),
+      ...mapMutations({
+        addContact: 'contacts/addContact',
+        setPage: 'messages/setPage',
+        setChatId: 'messages/setChatId',
+        setMessages: 'messages/setMessages'
+      }),
       async loadContacts() {
         if (!this.isUserAuth) {
-          this.contacts = []
         } else {
-          this.contacts = fakeContacts
+          this.loadContactsById(this.getUserId)
         }
       },
       async loadMessages(user) {
-
         await this.loadInterlocuter(user);
-        this.messages = []
-
-        if (this.messages.length > 0) {
-          this.needDown = true
+        if (user.find_by_user) {
+          this.setMessages([])
+        } else {
+          this.setChatId(user.id)
+          await this.fetchMessages();
         }
 
+        if (this.getMessagesCount() > 0) {
+          this.needDown = true
+        }
       },
-      async loadMoreMessages() {
-        console.log('Load more messages')
+      loadMoreMessages() {
+        this.fetchMoreMessages()
       },
       async loadInterlocuter(user) {
         this.interlocutor = {
           id: user.id,
           nick: user.nick,
           type: 'user',
+          user_data: user
         };
 
       },
@@ -120,19 +137,6 @@
           password: user.password,
         })
       },
-      loadMoreMessages(lastMessage) {
-          const newMessages = [];
-
-          for (let i = 0; i < 10; i++) {
-            newMessages.push({
-              id: new Date().getTime() + i + lastMessage.id,
-              message: `Message auto genereted ${i}`,
-              user_id: 888,
-            });
-          }
-
-          this.messages = [...newMessages ,...this.messages]
-      },
       sendMessage(message) {
         const user = this.getUser();
         this.$socket.emit('send_message', {
@@ -140,51 +144,72 @@
           from: user.id,
           to:this.interlocutor.id,
           type: this.interlocutor.type,
+          find_by_user: this.interlocutor.user_data.find_by_user || false
         })
-
-        this.messages.push({
-          id: Date.now(),
-          message: message,
-          user_id: user.id,
-        });
 
         this.needDown = true;
       },
-      ...mapGetters({
-        getUser: 'auth/getUser'
-      }),
       createChat(user) {
         const contact = {
           id: user.id,
           nick: user.nick,
           online: user.status === 1,
+          find_by_user: true
         }
 
-        const existedContact = this.contacts.find(contact => contact.id === user.id)
+        this.addContact(contact);
+      },
+      async connectToSocket() {
+        const user = JSON.parse(localStorage.getItem('user'))
+        const data =  await this.$store.dispatch('auth/autologin', user)
 
-        if (!existedContact) {
-          this.contacts = [contact, ...this.contacts]
+        if (data && data.id) {
+          await this.loadContacts();
+          this.$socket.emit('user_login', {user_id: user.id})
+          this.needCheckConnect = true
         }
       }
     },
     computed: {
+      ...mapState({
+        messages: state => state.messages.messages,
+        totalPages: state => state.messages.totalPages,
+        page: state => state.messages.page,
+        limit: state => state.messages.limit
+      }),
       ...mapGetters({
         isUserAuth : 'auth/isUserAuth',
-        getUserId: 'auth/getUserId'
+        getUserId: 'auth/getUserId',
+        contacts: 'contacts/contacts'
       }),
     },
-    async mounted() {
-      const user = JSON.parse(localStorage.getItem('user'))
-      const data =  await this.$store.dispatch('auth/autologin', user)
-
-      if (data && data.id) {
-         await this.loadContacts();
-         this.$socket.emit('user_login', {user_id: user.id})
-      }
+    mounted() {
+      this.connectToSocket()
     },
     sockets: {
       newMessage(data) {
-        console.log(data)
+        if (this.interlocutor.user_data.find_by_user) {
+          this.interlocutor.user_data.find_by_user = false
+          this.interlocutor.id = data.chat._id.toString()
+          const contactIndex = this.contacts.findIndex(c => c.id == data.message.to)
+          const newContacts = this.contacts.slice();
+          newContacts[contactIndex]['id'] = data.chat._id
+          this.contacts = newContacts
+        }
+
+        if (data.message) {
+          this.messages.push({
+            id: data.message._id.toString(),
+            message: data.message.message.toString(),
+            from: data.message.from,
+            time: data.message.time,
+          });
+        }
+      },
+      connect() {
+        if (this.needCheckConnect) {
+          this.connectToSocket()
+        }
       }
     }
   }

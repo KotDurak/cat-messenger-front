@@ -4,9 +4,9 @@
         <user-message
                 v-for="message in messages"
                 :key="message.id"
-                :user="message.user_id === user.id ? user : interlocutor"
+                :user="message.from === user.id ? user : interlocutor"
                 :message="message"
-                :is-my="message.user_id === user.id"
+                :is-my="message.from === user.id"
         />
     </div>
 </template>

@@ -9,7 +9,7 @@
                 class="list-group-item contact-item"
                 @click="loadMessages(contact)"
             >
-                {{contact.nick}}
+                {{contact.name}}
             </li>
         </ul>
     </div>
@@ -17,7 +17,6 @@
 
 <script>
     import SearchContacts from "@/components/SearchContacts";
-    import axios from 'axios'
 
     export default {
         components: {SearchContacts},
@@ -33,7 +32,6 @@
             },
             addUser(user) {
                 this.$emit('create-chat', user)
-               // this.loadMessages(user)
             }
         }
     }

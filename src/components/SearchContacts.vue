@@ -19,7 +19,7 @@
                         class="list-group-item searched_contact"
                         v-for="user in users"
                         :key="user.id"
-                        @click="$emit('create-chat', user)"
+                        @click="createChat(user)"
                 >
                     {{user.nick}}
                 </li>
@@ -53,7 +53,11 @@
                 }, error => {
                     console.log(error)
                 })
-            }, 1000)
+            }, 1000),
+            createChat(user) {
+                this.$emit('create-chat', user)
+                this.users = this.users.filter(u => u.id != user.id)
+            }
         },
         computed: {
             ...mapGetters({
