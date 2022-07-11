@@ -1,7 +1,10 @@
 <template>
     <div class="row">
         <div class="col-4">
-            <p v-if="user.nick">{{user.nick}}</p>
+            <drop-down-menu
+                    :items="items"
+                    v-if="user.nick">{{user.nick}}
+            </drop-down-menu>
         </div>
         <div class="col-md-8">
             <h2 class="text-center">{{title}}</h2>
@@ -12,6 +15,20 @@
 <script>
     export default {
         name: "NavBar",
+        data() {
+          return {
+              items: [
+                  {
+                      title: 'Выход',
+                      callback: () => this.$emit('exit')
+                  },
+                  {
+                      title: 'Информация',
+                      callback: () => console.log('Show info about user')
+                  }
+              ]
+          }
+        },
         props: {
             title: {
                 type: String,

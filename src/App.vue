@@ -1,6 +1,10 @@
 <template>
   <div class="container">
-    <main-header :title="name" :user="getUser()"/>
+    <main-header
+            :title="name"
+            :user="getUser()"
+            @exit="logoutUser"
+    />
     <div class="row">
       <contact-list
           :contacts="contacts"
@@ -46,8 +50,6 @@
   import MainHeader from "@/components/MainHeader";
   import ContactList from "@/components/ContactList";
   import MessagesContent from "@/components/MessagesContent";
-  import fakeContacts from "@/fake-data/contacts";
-  import fakeMessages from '@/fake-data/messages';
   import {mapState, mapActions, mapGetters, mapMutations} from 'vuex';
   import MessageForm from "@/components/MessageForm";
   import LoginForm from "@/components/LoginForm";
@@ -72,6 +74,7 @@
         loadContactsById: 'contacts/loadContacts',
         fetchMessages: 'messages/fetchMessages',
         fetchMoreMessages: 'messages/fetchMoreMessages',
+        logout: 'auth/logout'
       }),
       ...mapGetters({
         getUser: 'auth/getUser',
@@ -81,8 +84,14 @@
         addContact: 'contacts/addContact',
         setPage: 'messages/setPage',
         setChatId: 'messages/setChatId',
-        setMessages: 'messages/setMessages'
+        setMessages: 'messages/setMessages',
+        addMessage: 'messages/addMessage'
       }),
+      logoutUser() {
+        this.$socket.emit('user_logout', {})
+        this.logout()
+
+      },
       async loadContacts() {
         if (!this.isUserAuth) {
         } else {
@@ -188,6 +197,23 @@
     },
     sockets: {
       newMessage(data) {
+        const chatId = data.chat._id
+        const hasContact = this.contacts.some(c => c.id == chatId)
+
+        if (!hasContact && this.getUserId !== data.sender.id) {
+          this.addContact({
+            id: chatId,
+            name: data.sender.nick,
+            unreadCount:1,
+          })
+          return;
+        }
+
+        if (!this.interlocutor) {
+          console.log('message from', data)
+          return;
+        }
+
         if (this.interlocutor.user_data.find_by_user) {
           this.interlocutor.user_data.find_by_user = false
           this.interlocutor.id = data.chat._id.toString()
@@ -198,20 +224,31 @@
         }
 
         if (data.message) {
-          this.messages.push({
-            id: data.message._id.toString(),
-            message: data.message.message.toString(),
-            from: data.message.from,
-            time: data.message.time,
-          });
+          if (this.interlocutor.id == data.chat._id) {
+            this.addMessage({
+              id: data.message._id.toString(),
+              message: data.message.message.toString(),
+              from: data.message.from,
+              time: data.message.time,
+            });
+          } else {
+            console.log('message from', data.chat._id)
+          }
+
         }
       },
       connect() {
         if (this.needCheckConnect) {
           this.connectToSocket()
         }
+      },
+      userLogin(data) {
+        console.log('login', data)
+      },
+      userDisconnect(data) {
+        console.log('disconnect', data)
       }
-    }
+    },
   }
 </script>
 

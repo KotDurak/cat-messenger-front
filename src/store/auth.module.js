@@ -57,7 +57,7 @@ export const auth = {
             state.status.loggedIn = false
             state.user = null
         },
-        logout(state) {
+        authLogout(state) {
             state.status.loggedIn = false
             state.user = null
         },
@@ -66,7 +66,7 @@ export const auth = {
         },
         registerFailure(state) {
             state.status.loggedIn = false
-        }
+        },
     },
     getters: {
         isUserAuth(state) {

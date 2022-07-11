@@ -26,8 +26,11 @@ export const messages = {
             state.page = page
         },
         setTotalPages(state, totalPages) {
-            state.totalPages= totalPages
+            state.totalPages = totalPages
         },
+        addMessage(state, message) {
+            state.messages.push(message)
+        }
     },
     actions: {
         async fetchMessages({state, commit}) {
@@ -55,7 +58,7 @@ export const messages = {
             } catch (e) {
                 console.log('Error')
             }
-        }
+        },
     }
 }
 
