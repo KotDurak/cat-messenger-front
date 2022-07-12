@@ -1,5 +1,5 @@
 <template>
-    <div class="row">
+    <div class="row cat-messenger_header">
         <div class="col-4">
             <drop-down-menu
                     :items="items"
@@ -43,5 +43,7 @@
 </script>
 
 <style scoped>
-
+    .cat-messenger_header{
+        margin-top:20px;
+    }
 </style>

@@ -17,6 +17,9 @@
         <button class="btn btn-success" style="margin-left: 20px" @click="openRegister">Регистрация</button>
       </div>
       <div class="col-md-9" v-if="isUserAuth">
+          <div>
+            <h4 class="text-success">{{interlocuterName}}</h4>
+          </div>
           <div class="messages-window row align-items-end">
             <messages-content
                     :messages="messages"
@@ -74,7 +77,8 @@
         loadContactsById: 'contacts/loadContacts',
         fetchMessages: 'messages/fetchMessages',
         fetchMoreMessages: 'messages/fetchMoreMessages',
-        logout: 'auth/logout'
+        logout: 'auth/logout',
+        refreshUnread: 'contacts/refreshUnread'
       }),
       ...mapGetters({
         getUser: 'auth/getUser',
@@ -85,7 +89,8 @@
         setPage: 'messages/setPage',
         setChatId: 'messages/setChatId',
         setMessages: 'messages/setMessages',
-        addMessage: 'messages/addMessage'
+        addMessage: 'messages/addMessage',
+        addUnread: 'contacts/addUnread'
       }),
       logoutUser() {
         this.$socket.emit('user_logout', {})
@@ -104,7 +109,13 @@
           this.setMessages([])
         } else {
           this.setChatId(user.id)
+          this.setPage(1);
           await this.fetchMessages();
+
+          this.refreshUnread({
+            chat_id: user.id,
+            user_id: this.getUserId
+          })
         }
 
         if (this.getMessagesCount() > 0) {
@@ -191,9 +202,27 @@
         getUserId: 'auth/getUserId',
         contacts: 'contacts/contacts'
       }),
+      interlocuterName() {
+        if (!this.interlocutor || !this.interlocutor.user_data) {
+          return ''
+        }
+
+        return this.interlocutor.user_data.name
+      }
     },
     mounted() {
       this.connectToSocket()
+    },
+    watch: {
+      'interlocutor.id'(newChat, oldChat) {
+        if (!oldChat) {
+          return
+        }
+        this.refreshUnread({
+          chat_id: oldChat,
+          user_id: this.getUserId
+        })
+      }
     },
     sockets: {
       newMessage(data) {
@@ -210,7 +239,7 @@
         }
 
         if (!this.interlocutor) {
-          console.log('message from', data)
+          this.addUnread(data.chat._id)
           return;
         }
 
@@ -232,7 +261,7 @@
               time: data.message.time,
             });
           } else {
-            console.log('message from', data.chat._id)
+            this.addUnread(data.chat._id)
           }
 
         }
@@ -254,11 +283,11 @@
 
 <style>
   .messages-window{
-    height: 400px;
+    height: 500px;
   }
 
   .messages-content{
-    max-height: 400px;
+    max-height: 500px;
     overflow-y: auto;
   }
 </style>

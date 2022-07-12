@@ -1,14 +1,21 @@
 <template>
     <div class="row message-form">
-        <div class="col-8">
+        <div class="col-8 ">
             <cat-text-area
                     v-model="message"
                     :rows="2"
+                    @keydown.enter.prevent="sendMessage"
 
             />
         </div>
         <div class="col-4">
-            <button  @click="sendMessage" class="message-button"></button>
+            <a  @click.prevent="sendMessage" class="message-button">
+                <BootstrapIcon
+                        icon="send"
+                        size="3x"
+                        variant="info"
+                        />
+            </a>
         </div>
     </div>
 </template>
@@ -23,7 +30,7 @@
         },
         methods: {
             sendMessage() {
-                const message = this.message.trim();
+                const message = this.message.trim('\n');
 
                 if (!message) {
                     return;
@@ -38,29 +45,11 @@
 
 <style scoped>
     .message-form{
-        margin-top: 20px;
+        margin-top: 30px;
     }
 
     .message-button{
-        background-color: #0dcaf0;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        border: none;
-        position: relative;
+        cursor: pointer;
     }
 
-    .message-button:after {
-        content: '';
-        position: absolute;
-        border-style: solid;
-        border-width: 19px 12px 0;
-        border-color: #fff transparent transparent transparent;
-        display: block;
-        width: 8px;
-        z-index: 1;
-        top: 26%;
-        left: 34%;
-        transform: rotate(269deg);
-    }
 </style>

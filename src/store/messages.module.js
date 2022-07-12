@@ -6,7 +6,7 @@ export const messages = {
     state: () => ({
         messages: [],
         page:1,
-        limit: 10,
+        limit: 50,
         totalPages: 0,
         chatId: null
     }),
