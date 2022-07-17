@@ -24,6 +24,7 @@
         background: rgba(0,0,0,0.5);
         position: fixed;
         display: flex;
+        z-index: 9999999;
     }
 
     .dialog__content{

@@ -17,11 +17,15 @@
         <button class="btn btn-success" style="margin-left: 20px" @click="openRegister">Регистрация</button>
       </div>
       <div class="col-md-9" v-if="isUserAuth">
-          <div>
-            <h4 class="text-success">{{interlocuterName}}</h4>
-          </div>
+          <UserInfo
+                  :name="interlocuterName"
+                  :user_id="interlocutor.id"
+                  v-if="interlocutor"
+                  @deleted="this.interlocutor = null"
+          />
           <div class="messages-window row align-items-end">
             <messages-content
+                    v-if="this.interlocutor !== null"
                     :messages="messages"
                     :interlocutor="interlocutor"
                     :user="getUser()"
@@ -58,9 +62,10 @@
   import LoginForm from "@/components/LoginForm";
   import ModalDialog from "@/components/UI/ModalDialog";
   import RegisterForm from "@/components/RegisterForm";
+  import UserInfo from "@/components/UserInfo";
 
   export default {
-    components: {RegisterForm, ModalDialog, LoginForm, MessageForm, MessagesContent, ContactList, MainHeader},
+    components: {UserInfo, RegisterForm, ModalDialog, LoginForm, MessageForm, MessagesContent, ContactList, MainHeader},
     data() {
       return {
         name: 'Cat Messenger',
@@ -78,7 +83,8 @@
         fetchMessages: 'messages/fetchMessages',
         fetchMoreMessages: 'messages/fetchMoreMessages',
         logout: 'auth/logout',
-        refreshUnread: 'contacts/refreshUnread'
+        refreshUnread: 'contacts/refreshUnread',
+        getDeletedChatByUser: 'contacts/getDeletedChatByUser'
       }),
       ...mapGetters({
         getUser: 'auth/getUser',
@@ -90,7 +96,8 @@
         setChatId: 'messages/setChatId',
         setMessages: 'messages/setMessages',
         addMessage: 'messages/addMessage',
-        addUnread: 'contacts/addUnread'
+        addUnread: 'contacts/addUnread',
+       setContactStatus: 'contacts/setContactStatus'
       }),
       logoutUser() {
         this.$socket.emit('user_logout', {})
@@ -130,7 +137,8 @@
           id: user.id,
           nick: user.nick,
           type: 'user',
-          user_data: user
+          user_data: user,
+          restore_by_send: user.restore_by_send || false
         };
 
       },
@@ -164,19 +172,31 @@
           from: user.id,
           to:this.interlocutor.id,
           type: this.interlocutor.type,
-          find_by_user: this.interlocutor.user_data.find_by_user || false
+          find_by_user: this.interlocutor.user_data.find_by_user || false,
+          restore_by_send: this.interlocutor.restore_by_send
         })
 
         this.needDown = true;
       },
-      createChat(user) {
+      async createChat(user) {
         const contact = {
           id: user.id,
           nick: user.nick,
           online: user.status === 1,
-          find_by_user: true
+          find_by_user: user.type === 'user',
+          type: user.type,
         }
 
+        if (user.type === 'user') {
+          let result = await this.getDeletedChatByUser(user.id);
+
+          if (result.data.id) {
+            contact.id = result.data.id
+            contact.restore_by_send = true
+            contact.find_by_user = false
+          }
+        }
+        console.log(contact)
         this.addContact(contact);
       },
       async connectToSocket() {
@@ -233,7 +253,7 @@
           this.addContact({
             id: chatId,
             name: data.sender.nick,
-            unreadCount:1,
+            unread:1,
           })
           return;
         }
@@ -272,10 +292,10 @@
         }
       },
       userLogin(data) {
-        console.log('login', data)
+          this.setContactStatus({user_id: data.user_id, online:true})
       },
       userDisconnect(data) {
-        console.log('disconnect', data)
+          this.setContactStatus({user_id: data.user_id, online: false})
       }
     },
   }

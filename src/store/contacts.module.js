@@ -1,4 +1,6 @@
 import axios from "axios";
+import authHeader from "@/services/auth-header";
+const API_URL = process.env.VUE_APP_API_SERVER;
 
 export const contacts = {
     namespaced: true,
@@ -16,7 +18,7 @@ export const contacts = {
         },
 
         addContact(state, contact) {
-            const existedContact = state.contacts.findIndex(c => c.id === contact.id)
+            const existedContact = state.contacts.findIndex(c => c.user_id === contact.id)
 
             if (existedContact === -1) {
                 if (!contact.name && contact.nick) {
@@ -42,7 +44,6 @@ export const contacts = {
                state.contacts[indexContact]['unread'] += 1
            }
         },
-
         refreshUnreadUnread(state, chatId) {
             const indexContact = state.contacts.findIndex(c => c.id == chatId)
 
@@ -51,17 +52,26 @@ export const contacts = {
             }
 
             state.contacts[indexContact]['unread'] = 0
+        },
+        setContactStatus(state, statusData) {
+            const indexContact = state.contacts.findIndex(c => c.user_id == statusData.user_id)
+
+            if (indexContact === -1) {
+                return
+            }
+
+            state.contacts[indexContact]['online'] = statusData.online
         }
     },
     actions: {
         async loadContacts({state, commit}, userId) {
-            const contactsUrl = process.env.VUE_APP_API_SERVER + 'api/load-contacts/' + userId
+            const contactsUrl = API_URL + 'api/load-contacts/' + userId
             const response = await axios.get(contactsUrl);
             commit('setContacts', response.data.result)
         },
 
         async refreshUnread({commit}, data) {
-            const url = process.env.VUE_APP_API_SERVER + 'api/refresh-unread'
+            const url = API_URL + 'api/refresh-unread'
             const response = await axios.post(url, data)
 
             if(response.status != 200) {
@@ -69,6 +79,28 @@ export const contacts = {
             }
 
             commit('refreshUnreadUnread', data.chat_id)
+        },
+
+        async deleteContact({state, commit}, chatId) {
+            const url = API_URL + 'api/contacts/' + chatId
+
+            const result = await  axios.delete(url, {
+                headers: {
+                    ...authHeader()
+                }
+            })
+        },
+
+        async getDeletedChatByUser({state, commit}, userId) {
+            const url = API_URL + 'api/contacts/search-delete/' + userId
+
+            const result = await axios.get(url, {
+                headers: {
+                    ...authHeader()
+                }
+            })
+
+            return  result
         }
     }
 }

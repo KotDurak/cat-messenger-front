@@ -9,7 +9,7 @@
                 class="list-group-item contact-item"
                 @click="loadMessages(contact)"
             >
-                <span class="contact_name">{{contact.name}}</span>
+                <span class="contact_name" :class="{'online': contact.online}">{{contact.name}}</span>
                 <span class="unread_count text-danger" v-show="contact.unread">({{contact.unread}})</span>
             </li>
         </ul>
@@ -47,5 +47,16 @@
         font-weight: 700;
         position: absolute;
         right: 10px;
+    }
+
+    .online:before{
+        background: #029e03;
+        clip-path: circle(50%);
+        height: 10px;
+        width: 10px;
+        content:'';
+        position: absolute;
+        left: 5px;
+        top: 15px;
     }
 </style>
