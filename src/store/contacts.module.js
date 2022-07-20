@@ -101,6 +101,12 @@ export const contacts = {
             })
 
             return  result
+        },
+
+        removeFromContacts({state, commit}, userId) {
+            commit('setContacts', state.contacts.filter(contact => {
+                return contact.id !== userId
+            }))
         }
     }
 }

@@ -21,7 +21,7 @@
                   :name="interlocuterName"
                   :user_id="interlocutor.id"
                   v-if="interlocutor"
-                  @deleted="this.interlocutor = null"
+                  @deleted="deleteContact"
           />
           <div class="messages-window row align-items-end">
             <messages-content
@@ -84,7 +84,8 @@
         fetchMoreMessages: 'messages/fetchMoreMessages',
         logout: 'auth/logout',
         refreshUnread: 'contacts/refreshUnread',
-        getDeletedChatByUser: 'contacts/getDeletedChatByUser'
+        getDeletedChatByUser: 'contacts/getDeletedChatByUser',
+        removeFromContacts: 'contacts/removeFromContacts'
       }),
       ...mapGetters({
         getUser: 'auth/getUser',
@@ -155,8 +156,6 @@
           this.showRegister = false;
           this.$socket.emit('user_login', {user_id: this.getUserId});
         })
-
-
       },
       async registerUser(user) {
         const data =  await this.$store.dispatch('auth/register', user);
@@ -208,6 +207,10 @@
           this.$socket.emit('user_login', {user_id: user.id})
           this.needCheckConnect = true
         }
+      },
+      deleteContact(userId) {
+        this.interlocutor = null
+        this.removeFromContacts(userId)
       }
     },
     computed: {
@@ -280,6 +283,10 @@
               from: data.message.from,
               time: data.message.time,
             });
+            this.refreshUnread({
+              chat_id: data.chat._id,
+              user_id: this.getUserId
+            })
           } else {
             this.addUnread(data.chat._id)
           }
@@ -303,11 +310,11 @@
 
 <style>
   .messages-window{
-    height: 500px;
+    height: 70vh;
   }
 
   .messages-content{
-    max-height: 500px;
+    max-height: 70vh;
     overflow-y: auto;
   }
 </style>

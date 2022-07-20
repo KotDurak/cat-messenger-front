@@ -63,7 +63,7 @@
                     chat_id: this.user_id
                 })
 
-                this.$emit('deleted')
+                this.$emit('deleted', this.user_id)
             },
 
         },
