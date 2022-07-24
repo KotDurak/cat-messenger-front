@@ -103,6 +103,16 @@ export const contacts = {
             return  result
         },
 
+        async addUserInBlackList({state, commit}, userId) {
+            const url = API_URL + 'api/contacts/add-black-list/' +userId
+
+            const result = await axios.put(url, {}, {
+                headers: {
+                    ...authHeader()
+                }
+            })
+        },
+
         removeFromContacts({state, commit}, userId) {
             commit('setContacts', state.contacts.filter(contact => {
                 return contact.id !== userId

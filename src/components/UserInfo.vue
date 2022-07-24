@@ -12,6 +12,12 @@
                     :text="removeUserText"
             />
         </modal-dialog>
+        <modal-dialog v-model:show="showBlackListDialog">
+            <dialog-confirm
+                    @confirm="confirmBlackList"
+                    :text="blackListUserText"
+            />
+        </modal-dialog>
     </div>
 </template>
 
@@ -23,7 +29,10 @@
                 type: String,
                 default: null
             },
-            name: String
+            name: String,
+            user_info: {
+                type:Object
+            }
         },
         data() {
             return {
@@ -40,7 +49,9 @@
                     },
                     {
                         title: 'В черный список',
-                        callback: () => console.log('Black list', this.user_id)
+                        callback: () =>  {
+                            this.showBlackListDialog = true
+                        }
                     }
                 ],
                 showDeleteDialog: false,
@@ -49,14 +60,17 @@
         },
         methods: {
             ...mapActions({
-               deleteContact: 'contacts/deleteContact'
+               deleteContact: 'contacts/deleteContact',
+               addUserInBlackList: 'contacts/addUserInBlackList',
             }),
             async confirmDelete(confirm) {
+                this.showDeleteDialog = false
+
                 if (!confirm) {
                     return
                 }
 
-                this.showDeleteDialog = false
+
                 await this.deleteContact(this.user_id)
                 this.$socket.emit('delete_contact', {
                     sender_id: this.senderId,
@@ -65,7 +79,16 @@
 
                 this.$emit('deleted', this.user_id)
             },
+            async confirmBlackList(confirm) {
+                this.showBlackListDialog = false
 
+                if (!confirm) {
+                    return
+                }
+
+                this.addUserInBlackList(this.user_id)
+
+            }
         },
         computed: {
             removeUserText() {

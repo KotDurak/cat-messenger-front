@@ -20,6 +20,7 @@
           <UserInfo
                   :name="interlocuterName"
                   :user_id="interlocutor.id"
+                  :user_info="interlocutor"
                   v-if="interlocutor"
                   @deleted="deleteContact"
           />
@@ -63,9 +64,12 @@
   import ModalDialog from "@/components/UI/ModalDialog";
   import RegisterForm from "@/components/RegisterForm";
   import UserInfo from "@/components/UserInfo";
+  import UserNotice from "@/components/UserNotice";
 
   export default {
-    components: {UserInfo, RegisterForm, ModalDialog, LoginForm, MessageForm, MessagesContent, ContactList, MainHeader},
+    components: {
+      UserNotice,
+      UserInfo, RegisterForm, ModalDialog, LoginForm, MessageForm, MessagesContent, ContactList, MainHeader},
     data() {
       return {
         name: 'Cat Messenger',
@@ -195,7 +199,6 @@
             contact.find_by_user = false
           }
         }
-        console.log(contact)
         this.addContact(contact);
       },
       async connectToSocket() {
@@ -303,7 +306,10 @@
       },
       userDisconnect(data) {
           this.setContactStatus({user_id: data.user_id, online: false})
-      }
+      },
+      deleteChat(data) {
+        console.log(data)
+      },
     },
   }
 </script>
