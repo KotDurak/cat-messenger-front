@@ -183,11 +183,12 @@
       },
       async createChat(user) {
         const contact = {
-          id: user.id,
+          user_id: user.id,
           nick: user.nick,
           online: user.status === 1,
           find_by_user: user.type === 'user',
           type: user.type,
+          in_black_list: user.in_black_list
         }
 
         if (user.type === 'user') {

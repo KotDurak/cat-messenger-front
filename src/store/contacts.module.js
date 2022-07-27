@@ -5,11 +5,15 @@ const API_URL = process.env.VUE_APP_API_SERVER;
 export const contacts = {
     namespaced: true,
     state: () => ({
-        contacts: []
+        contacts: [],
+        searchedUsers:[]
     }),
     getters: {
         contacts(state) {
             return state.contacts
+        },
+        searchedUsers(state) {
+            return state.searchedUsers
         }
     },
     mutations: {
@@ -17,8 +21,12 @@ export const contacts = {
           state.contacts = contacts
         },
 
+        setSearchedUsers(state, searchedUsers) {
+            state.searchedUsers = searchedUsers
+        },
+
         addContact(state, contact) {
-            const existedContact = state.contacts.findIndex(c => c.user_id === contact.id)
+            const existedContact = state.contacts.findIndex(c => c.user_id === contact.user_id)
 
             if (existedContact === -1) {
                 if (!contact.name && contact.nick) {
@@ -111,6 +119,14 @@ export const contacts = {
                     ...authHeader()
                 }
             })
+        },
+
+        async searchUsers({state, commit}, data) {
+            const {query, user_id} = data
+            const url = process.env.VUE_APP_SOCKET_SERVER + 'api/contacts/search/' + user_id + '/'  + query
+            const result = await axios.get(url)
+            const users = result.data.users || []
+            commit('setSearchedUsers', users)
         },
 
         removeFromContacts({state, commit}, userId) {

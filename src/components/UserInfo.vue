@@ -23,6 +23,7 @@
 
 <script>
     import {mapActions, mapGetters} from 'vuex'
+    import useUserInfo from "@/hooks/useUserInfo";
     export default {
         props: {
             user_id: {
@@ -32,30 +33,6 @@
             name: String,
             user_info: {
                 type:Object
-            }
-        },
-        data() {
-            return {
-                menu_items: [
-                    {
-                        title: 'О пользователе',
-                        callback: () => console.log('About')
-                    },
-                    {
-                        title: 'Удалить контакт',
-                        callback: () => {
-                            this.showDeleteDialog = true
-                        }
-                    },
-                    {
-                        title: 'В черный список',
-                        callback: () =>  {
-                            this.showBlackListDialog = true
-                        }
-                    }
-                ],
-                showDeleteDialog: false,
-                showBlackListDialog: false,
             }
         },
         methods: {
@@ -85,10 +62,9 @@
                 if (!confirm) {
                     return
                 }
-
-                this.addUserInBlackList(this.user_id)
-
-            }
+                const userId = this.user_info.user_data.user_id
+                this.addUserInBlackList(userId)
+            },
         },
         computed: {
             removeUserText() {
@@ -99,7 +75,17 @@
             },
             ...mapGetters({
                 senderId: 'auth/getUserId'
-            })
+            }),
+        },
+        setup(props) {
+
+            const {menu_items, showDeleteDialog, showBlackListDialog} = useUserInfo(props)
+
+            return {
+                menu_items,
+                showBlackListDialog,
+                showDeleteDialog,
+            }
         }
     }
 </script>

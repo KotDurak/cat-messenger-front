@@ -37,6 +37,11 @@
             return {
                 show: false
             }
+        },
+        watch: {
+            items() {
+                this.show = false
+            }
         }
     }
 </script>

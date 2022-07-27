@@ -5,7 +5,7 @@
                    class="form-control rounded"
                    placeholder="Ник или email" aria-label="Search"
                    aria-describedby="search-addon"
-                   @input="searchUsers"
+                   @input="searchEvent"
                    v-model="searchSting"
             />
             <BootstrapIcon
@@ -17,7 +17,7 @@
             <ul class="list-group">
                 <li
                         class="list-group-item searched_contact"
-                        v-for="user in users"
+                        v-for="user in searchedUsers"
                         :key="user.id"
                         @click="createChat(user)"
                 >
@@ -29,7 +29,7 @@
 </template>
 
 <script>
-    import {mapGetters} from 'vuex'
+    import {mapGetters, mapActions, mapMutations} from 'vuex'
     import axios from 'axios'
     import _ from 'lodash'
     export default {
@@ -41,27 +41,31 @@
           }
         },
         methods: {
-            searchUsers:_.debounce(function(e) {
+            ...mapActions({
+                searchUsers: 'contacts/searchUsers'
+            }),
+            ...mapMutations({
+                setSearchedUsers: 'contacts/setSearchedUsers'
+            }),
+            searchEvent:_.debounce(function(e) {
                 if (!e.target.value || e.target.value.leading < 2) {
                     return
                 }
 
-                const url = process.env.VUE_APP_SOCKET_SERVER + 'api/contacts/search/' + this.getUserId + '/'  + e.target.value
-
-                axios.get(url).then(response =>  {
-                    this.users = response.data.users
-                }, error => {
-                    console.log(error)
+                this.searchUsers({
+                    query: e.target.value,
+                    user_id: this.getUserId
                 })
             }, 1000),
             createChat(user) {
                 this.$emit('create-chat', user)
-                this.users = this.users.filter(u => u.id != user.id)
+                this.setSearchedUsers([])
             }
         },
         computed: {
             ...mapGetters({
-                getUserId: 'auth/getUserId'
+                getUserId: 'auth/getUserId',
+                searchedUsers: 'contacts/searchedUsers'
             }),
         }
     }
