@@ -1,21 +1,13 @@
 <template>
-    <div class="row message-form">
-        <div class="col-8 ">
-            <cat-text-area
-                    v-model="message"
-                    :rows="2"
-                    @keydown.enter.prevent="sendMessage"
-
-            />
-        </div>
-        <div class="col-4">
-            <a  @click.prevent="sendMessage" class="message-button">
-                <BootstrapIcon
-                        icon="send"
-                        size="3x"
-                        variant="info"
-                        />
-            </a>
+    <div class="flex-grow-0 py-3 px-4 border-top">
+        <div class="input-group">
+            <input type="text"
+                   class="form-control"
+                   placeholder="Сообщение..."
+                   v-model="message"
+                   @keydown.enter.prevent="sendMessage"
+            >
+            <button class="btn btn-primary" @click.prevent="sendMessage">Отправить</button>
         </div>
     </div>
 </template>

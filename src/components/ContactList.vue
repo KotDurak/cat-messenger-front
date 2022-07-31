@@ -1,23 +1,28 @@
 <template>
-    <div class="col-md-3">
-        <h3>Контакты</h3>
+    <div>
         <search-contacts @create-chat="addUser"/>
-        <ul class="list-group">
-            <li
-                v-for="contact in contacts"
-                :key="contact.id"
-                class="list-group-item contact-item"
-                @click="loadMessages(contact)"
-            >
-                <span class="contact_name" :class="{'online': contact.online}">{{contact.name}}</span>
-                <span class="unread_count text-danger" v-show="contact.unread">({{contact.unread}})</span>
-            </li>
-        </ul>
+        <a href="#"
+           class="list-group-item list-group-item-action border-0"
+           v-for="contact in contacts"
+           :key="contact.id"
+           @click.prevent="loadMessages(contact)"
+        >
+            <div class="badge bg-success float-right" v-show="contact.unread">{{contact.unread}}</div>
+            <div class="d-flex align-items-start">
+                <img :src="getImgThumb()" class="rounded-circle mr-1 img-thumbnail"
+                     alt="Vanessa Tucker" width="40" height="40">
+                <div class="flex-grow-1 ml-3">
+                    {{contact.name}}
+                    <div class="small"><span class="fas fa-circle chat-online"></span> {{ contact.online  ? 'Online' : 'Offline'}}</div>
+                </div>
+            </div>
+        </a>
     </div>
 </template>
 
 <script>
     import SearchContacts from "@/components/SearchContacts";
+    import useDefaultImages from '@/hooks/useDefaultImages'
 
     export default {
         components: {SearchContacts},
@@ -33,6 +38,14 @@
             },
             addUser(user) {
                 this.$emit('create-chat', user)
+            }
+        },
+        setup(props) {
+            const {imgThumb, getImgThumb} = useDefaultImages()
+
+            return {
+                imgThumb,
+                getImgThumb
             }
         }
     }

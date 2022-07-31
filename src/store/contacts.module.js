@@ -119,6 +119,31 @@ export const contacts = {
                     ...authHeader()
                 }
             })
+
+            if (result.status != 200) {
+                console.error('Error by add user in black list')
+                return
+            }
+
+            setBlackListStatus(state, commit, userId, true)
+        },
+
+        async removeUserFromBlackList({state, commit}, userId) {
+            const url = API_URL + 'api/contacts/remove-black-list/' + userId
+
+            const result = await axios.delete(url, {
+                headers: {
+                    ...authHeader()
+                }
+            });
+
+            if (result.status != 200) {
+                console.log('Error by delete from black list')
+                return false
+            }
+
+            setBlackListStatus(state, commit, userId, false);
+            return true
         },
 
         async searchUsers({state, commit}, data) {
@@ -129,10 +154,32 @@ export const contacts = {
             commit('setSearchedUsers', users)
         },
 
+        async getUserInfo({}, userId) {
+            const url = process.env.VUE_APP_API_SERVER + 'api/contacts/'+ userId
+            const result = await axios.get(url)
+
+            if (result.status == 200) {
+                return result.data
+            }
+
+            return {};
+        },
+
         removeFromContacts({state, commit}, userId) {
             commit('setContacts', state.contacts.filter(contact => {
                 return contact.id !== userId
             }))
         }
     }
+}
+
+function setBlackListStatus(state, commit, userId, status) {
+    const contacts = state.contacts
+    const indexUser = contacts.findIndex(contact => contact.user_id == userId)
+    if (indexUser === -1) {
+        return false
+    }
+
+    contacts[indexUser]['in_black_list'] = status
+    commit('setContacts', contacts)
 }

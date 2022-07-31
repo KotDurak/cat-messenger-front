@@ -1,5 +1,5 @@
 <template>
-    <div class="col-md-12 gx-0" ref="list" id="messages_wrapper">
+    <div class="chat-messages p-4" ref="list" id="messages_wrapper">
         <div v-intersection="{rootElem:'#messages_wrapper', callback: loadMoreMessages}" class="observer"></div>
         <user-message
                 v-for="message in messages"

@@ -1,57 +1,62 @@
 <template>
-  <div class="container">
-    <main-header
-            :title="name"
-            :user="getUser()"
-            @exit="logoutUser"
-    />
-    <div class="row">
-      <contact-list
-          :contacts="contacts"
-          @load-messages="loadMessages"
-          @create-chat="createChat"
-          v-if="isUserAuth"
+  <main class="content">
+    <div class="container">
+      <main-header
+              :title="name"
+              :user="getUser()"
+              @exit="logoutUser"
       />
-      <div class="col-md-3" v-else>
-        <button class="btn btn-success" @click="openLogin">Логин</button>
-        <button class="btn btn-success" style="margin-left: 20px" @click="openRegister">Регистрация</button>
-      </div>
-      <div class="col-md-9" v-if="isUserAuth">
-          <UserInfo
-                  :name="interlocuterName"
-                  :user_id="interlocutor.id"
-                  :user_info="interlocutor"
-                  v-if="interlocutor"
-                  @deleted="deleteContact"
+      <div class="card">
+        <div class="row g-0">
+          <contact-list
+                  :contacts="contacts"
+                  @load-messages="loadMessages"
+                  @create-chat="createChat"
+                  v-if="isUserAuth"
+                  class="col-12 col-lg-5 col-xl-3 border-right"
           />
-          <div class="messages-window row align-items-end">
-            <messages-content
-                    v-if="this.interlocutor !== null"
-                    :messages="messages"
-                    :interlocutor="interlocutor"
-                    :user="getUser()"
-                    class="messages-content"
-                    ref="messages"
-                     v-model:need-down="needDown"
-                    @messages-down="this.needDown = false"
-                    @load-messages="loadMoreMessages"
+          <div class="col-12 col-lg-5 col-xl-3 border-right" v-else>
+            <button class="btn btn-success" @click="openLogin">Логин</button>
+            <button class="btn btn-success" style="margin-left: 20px" @click="openRegister">Регистрация</button>
+          </div>
+          <div class="col-12 col-lg-7 col-xl-9" v-if="isUserAuth">
+            <UserInfo
+                    :name="interlocuterName"
+                    :user_id="interlocutor.id"
+                    :user_info="interlocutor"
+                    v-if="interlocutor"
+                    @deleted="deleteContact"
+            />
+            <div class="position-relative">
+              <messages-content
+                      v-if="this.interlocutor !== null"
+                      :messages="messages"
+                      :interlocutor="interlocutor"
+                      :user="getUser()"
+                      class="messages-content"
+                      ref="messages"
+                      v-model:need-down="needDown"
+                      @messages-down="this.needDown = false"
+                      @load-messages="loadMoreMessages"
+              />
+            </div>
+            <message-form
+                    v-if="interlocutor !== null"
+                    @send-message="sendMessage"
             />
           </div>
-        <message-form
-                v-if="interlocutor !== null"
-                @send-message="sendMessage"
-        />
+        </div>
+        <modal-dialog v-model:show="showLogin">
+          <login-form @login="loginWithLoad"/>
+        </modal-dialog>
+        <modal-dialog v-model:show="showRegister">
+          <register-form
+                  @register="registerUser"
+          />
+        </modal-dialog>
       </div>
     </div>
-    <modal-dialog v-model:show="showLogin">
-      <login-form @login="loginWithLoad"/>
-    </modal-dialog>
-    <modal-dialog v-model:show="showRegister">
-      <register-form
-            @register="registerUser"
-      />
-    </modal-dialog>
-  </div>
+  </main>
 </template>
 
 <script>
@@ -323,5 +328,51 @@
   .messages-content{
     max-height: 70vh;
     overflow-y: auto;
+  }
+
+  body{margin-top:20px;}
+
+  .chat-online {
+    color: #34ce57
+  }
+
+  .chat-offline {
+    color: #e4606d
+  }
+
+  .chat-messages {
+    display: flex;
+    flex-direction: column;
+    max-height: 800px;
+    overflow-y: scroll
+  }
+
+  .chat-message-left,
+  .chat-message-right {
+    display: flex;
+    flex-shrink: 0
+  }
+
+  .chat-message-left {
+    margin-right: auto
+  }
+
+  .chat-message-right {
+    flex-direction: row-reverse;
+    margin-left: auto
+  }
+  .py-3 {
+    padding-top: 1rem!important;
+    padding-bottom: 1rem!important;
+  }
+  .px-4 {
+    padding-right: 1.5rem!important;
+    padding-left: 1.5rem!important;
+  }
+  .flex-grow-0 {
+    flex-grow: 0!important;
+  }
+  .border-top {
+    border-top: 1px solid #dee2e6!important;
   }
 </style>

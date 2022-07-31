@@ -7,6 +7,9 @@ export default function useUserInfo(props) {
     const menu_items = ref([])
     const showBlackListDialog = ref(false)
     const showDeleteDialog = ref(false)
+    const showUserInfoDialog = ref(false)
+    const isLoadingUserInfo = ref(true)
+    const userData = ref({})
 
 
     const getMenuItems = () => {
@@ -14,8 +17,7 @@ export default function useUserInfo(props) {
             ? {
                 title: 'Удалить из черного списка',
                 callback: () => {
-                    const id = user_info.value.user_data.user_id;
-                    console.log('Remove from black list', id)
+                    showBlackListDialog.value = true
                 }
             }
             : {
@@ -27,7 +29,9 @@ export default function useUserInfo(props) {
         menu_items.value = [
             {
                 title: 'О пользователе',
-                callback: () => console.log('About', user_info.value.id)
+                callback: () => {
+                    showUserInfoDialog.value = true
+                }
             },
             {
                 title: 'Удалить контакт',
@@ -43,14 +47,29 @@ export default function useUserInfo(props) {
         return user_info.value.user_data.in_black_list || false
     }
 
+    const setLoadingUserInfo = value => {
+        isLoadingUserInfo.value = value
+    }
+
+    const setUserData = data => {
+        userData.value = data
+    }
+
     onMounted(getMenuItems)
     watch(user_info, getMenuItems)
+    watch(user_info.value, getMenuItems)
 
 
 
     return {
         menu_items,
         showBlackListDialog,
-        showDeleteDialog
+        showDeleteDialog,
+        isInBlackList,
+        showUserInfoDialog,
+        isLoadingUserInfo,
+        setLoadingUserInfo,
+        userData,
+        setUserData
     }
 }
