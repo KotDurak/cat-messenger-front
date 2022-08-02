@@ -122,6 +122,7 @@
       },
       async loadMessages(user) {
         await this.loadInterlocuter(user);
+
         if (user.find_by_user) {
           this.setMessages([])
         } else {
@@ -144,7 +145,7 @@
       },
       async loadInterlocuter(user) {
         this.interlocutor = {
-          id: user.id,
+          id: user.id || user.user_id,
           nick: user.nick,
           type: 'user',
           user_data: user,
@@ -175,14 +176,16 @@
       },
       sendMessage(message) {
         const user = this.getUser();
-        this.$socket.emit('send_message', {
+        const data = {
           message: message,
           from: user.id,
           to:this.interlocutor.id,
           type: this.interlocutor.type,
           find_by_user: this.interlocutor.user_data.find_by_user || false,
           restore_by_send: this.interlocutor.restore_by_send
-        })
+        };
+
+        this.$socket.emit('send_message', data)
 
         this.needDown = true;
       },
@@ -194,6 +197,10 @@
           find_by_user: user.type === 'user',
           type: user.type,
           in_black_list: user.in_black_list
+        }
+
+        if (user.type === 'user') {
+          contact.id = user.id
         }
 
         if (user.type === 'user') {
@@ -209,12 +216,22 @@
       },
       async connectToSocket() {
         const user = JSON.parse(localStorage.getItem('user'))
-        const data =  await this.$store.dispatch('auth/autologin', user)
 
-        if (data && data.id) {
-          await this.loadContacts();
-          this.$socket.emit('user_login', {user_id: user.id})
-          this.needCheckConnect = true
+        if (!user) {
+          return
+        }
+
+        try {
+          const data =  await this.$store.dispatch('auth/autologin', user)
+
+          if (data && data.id) {
+            await this.loadContacts();
+            this.$socket.emit('user_login', {user_id: user.id})
+            this.needCheckConnect = true
+          }
+        } catch (e) {
+          this.$store.dispatch('auth/logout')
+          return
         }
       },
       deleteContact(userId) {

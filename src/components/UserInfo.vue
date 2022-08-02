@@ -6,9 +6,9 @@
                      class="rounded-circle mr-1"
                      alt="Sharon Lessman" width="40" height="40">
             </div>
-            <div class="flex-grow-1 pl-3" style="visibility: hidden">
+            <div class="flex-grow-1 pl-3">
                 <strong>{{name}}</strong>
-                <div class="text-muted small"><em>Typing...</em></div>
+                <div class="text-muted small" style="visibility: hidden"><em>Typing...</em></div>
             </div>
             <div>
                 <button class="btn btn-primary btn-lg mr-1 px-3" style="visibility: hidden">

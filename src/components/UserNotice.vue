@@ -2,7 +2,9 @@
     <div class="alert_wrapper">
         <div class="alert alert-dismissible" :class="alert_class" role="alert">
             {{message}}
-            <button type="button" @click="removeAlert"  class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button"  @click="removeAlert" class="close" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
     </div>
 </template>
