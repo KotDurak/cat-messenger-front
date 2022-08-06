@@ -25,6 +25,7 @@
         position: fixed;
         display: flex;
         z-index: 9999999;
+        overflow-y: auto;
     }
 
     .dialog__content{

@@ -6,7 +6,7 @@
               :user="getUser()"
               @exit="logoutUser"
       />
-      <div class="card">
+      <div class="card" v-if="isUserAuth">
         <div class="row g-0">
           <contact-list
                   :contacts="contacts"
@@ -15,11 +15,7 @@
                   v-if="isUserAuth"
                   class="col-12 col-lg-5 col-xl-3 border-right"
           />
-          <div class="col-12 col-lg-5 col-xl-3 border-right" v-else>
-            <button class="btn btn-success" @click="openLogin">Логин</button>
-            <button class="btn btn-success" style="margin-left: 20px" @click="openRegister">Регистрация</button>
-          </div>
-          <div class="col-12 col-lg-7 col-xl-9" v-if="isUserAuth">
+          <div class="col-12 col-lg-7 col-xl-9">
             <UserInfo
                     :name="interlocuterName"
                     :user_id="interlocutor.id"
@@ -46,6 +42,11 @@
             />
           </div>
         </div>
+      </div>
+      <div class="col-12 col-lg-12 col-xl-12 border-right" v-else>
+        <button class="btn btn-success" @click="openLogin">Логин</button>
+        <button class="btn btn-success" style="margin-left: 20px" @click="openRegister">Регистрация</button>
+
         <modal-dialog v-model:show="showLogin">
           <login-form @login="loginWithLoad"/>
         </modal-dialog>
@@ -107,7 +108,9 @@
         setMessages: 'messages/setMessages',
         addMessage: 'messages/addMessage',
         addUnread: 'contacts/addUnread',
-       setContactStatus: 'contacts/setContactStatus'
+        setContactStatus: 'contacts/setContactStatus',
+        addError: 'auth/addError',
+        clearErrors: 'auth/clearErrors',
       }),
       logoutUser() {
         this.$socket.emit('user_logout', {})
@@ -165,14 +168,26 @@
           this.showLogin = false;
           this.showRegister = false;
           this.$socket.emit('user_login', {user_id: this.getUserId});
+          this.clearErrors()
         })
       },
       async registerUser(user) {
-        const data =  await this.$store.dispatch('auth/register', user);
-        await this.loginWithLoad({
-          login: user.nick,
-          password: user.password,
+        this.$store.dispatch('auth/register', user).then(() => {
+           this.loginWithLoad({
+            login: user.nick,
+            password: user.password,
+          })
+        }).catch(error => {
+            if (error.response.status === 400) {
+              if(error.response.data.message) {
+                this.addError(error.response.data.message)
+                return
+              }
+            }
+
+            throw error
         })
+
       },
       sendMessage(message) {
         const user = this.getUser();
@@ -391,5 +406,19 @@
   }
   .border-top {
     border-top: 1px solid #dee2e6!important;
+  }
+
+  .form-wrapper{
+    width: 800px;
+  }
+
+  .auth-error{
+    font-size: 1.2rem;
+  }
+
+  @media (max-width: 768px) {
+    .form-wrapper{
+      width: 100%;
+    }
   }
 </style>

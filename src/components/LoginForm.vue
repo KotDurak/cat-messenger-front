@@ -1,15 +1,31 @@
 <template>
     <div>
+        <h3>Логин</h3>
         <form @submit.prevent="login">
-            <div class="mb-3">
-                <label for="exampleInputEmail1" class="form-label">Адрес электронной почты или номер</label>
-                <input type="text" v-model="userLogin" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+            <div class="row">
+                <div class="col-md-12 mb-12">
+
+                    <div class="form-outline">
+                        <input type="text" v-model="userLogin" class="form-control form-control-lg" id="exampleInputEmail1" aria-describedby="emailHelp">
+                        <label for="exampleInputEmail1" class="form-label">Адрес электронной почты или ник</label>
+                    </div>
+
+                </div>
+
+                <div class="col-md-12 mb-12">
+
+                    <div class="form-outline">
+                        <input type="password" v-model="password" class="form-control form-control-lg" id="exampleInputPassword1">
+                        <label for="exampleInputPassword1" class="form-label">Пароль</label>
+                    </div>
+                </div>
+
             </div>
-            <div class="mb-3">
-                <label for="exampleInputPassword1" class="form-label">Пароль</label>
-                <input type="password" v-model="password" class="form-control" id="exampleInputPassword1">
+
+            <div class="mt-4 pt-2">
+                <button type="submit" class="btn btn-primary btn-lg">Вход</button>
             </div>
-            <button type="submit" class="btn btn-primary">Отправить</button>
+
         </form>
     </div>
 </template>

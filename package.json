@@ -14,10 +14,12 @@
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "socket.io-client": "^4.5.1",
+    "vee-validate": "^4.6.2",
     "vue": "^3.2.13",
     "vue-3-socket.io": "^1.0.5",
     "vue-router": "^4.0.3",
-    "vuex": "^4.0.0"
+    "vuex": "^4.0.0",
+    "yup": "^0.32.11"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~5.0.0",

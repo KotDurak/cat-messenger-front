@@ -5,6 +5,8 @@ const initialState = user
 ? {status: {loggedIn: true}, user}
 : {status: {loggedIn: false}, user: null}
 
+initialState.error = ''
+
 export const auth = {
     namespaced: true,
     state: initialState,
@@ -67,6 +69,12 @@ export const auth = {
         registerFailure(state) {
             state.status.loggedIn = false
         },
+        addError(state, error) {
+            state.error = error
+        },
+        clearErrors(state) {
+            state.error = ''
+        }
     },
     getters: {
         isUserAuth(state) {
@@ -81,6 +89,9 @@ export const auth = {
             }
 
             return null
+        },
+        getAuthError(state) {
+            return  state.error.trim()
         }
     }
 }

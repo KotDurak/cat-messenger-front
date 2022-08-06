@@ -1,55 +1,113 @@
 <template>
-    <div class="login-form-wrapper">
-        <form action="" @submit.prevent="registerUser">
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input v-model="email" type="email" class="form-control" id="email" aria-describedby="emailHelp">
-            </div>
-            <div class="mb-3">
-                <label for="password" class="form-label">Пароль</label>
-                <input type="password" v-model="password" class="form-control" id="password">
-            </div>
-            <div class="mb-3">
-                <label for="exampleInputPassword1" class="form-label">Подтвердите пароль</label>
-                <input type="password" v-model="passwordConfirm" class="form-control" id="exampleInputPassword1">
-            </div>
+    <div class="form-wrapper">
+            <h3>Регистрация</h3>
+            <p v-if="authError.length > 1" class="text-danger auth-error">{{authError}}</p>
+            <Form @submit="registerUser" :validation-schema="schema">
+                <div class="row">
+                    <div class="col-md-6 mb-4">
 
-            <div class="mb-3">
-                <label for="nick-name">Ник</label>
-                <input type="text" class="form-control"  v-model="nick" aria-label="First name" id="nick-name">
-            </div>
+                        <div class="form-outline">
+                            <Field v-model="nick" name="nick" type="text" id="firstName" class="form-control form-control-lg"/>
+                            <label class="form-label" for="firstName">Ник</label>
+                            <ErrorMessage class="text-danger" name="nick"/>
+                        </div>
 
-            <div class="row">
-                <div class="col">
-                    <label for="age">Дата рождения</label>
-                    <input v-model="birthDay" type="date" class="form-control" min="18" max="120" id="age">
+                    </div>
+                    <div class="col-md-6 mb-4">
+
+                        <div class="form-outline">
+                            <Field v-model="email" name="email" type="text" id="lastName" class="form-control form-control-lg"/>
+                            <label class="form-label" for="lastName">Email</label>
+                            <ErrorMessage name="email" class="text-danger"/>
+                        </div>
+
+                    </div>
                 </div>
-                <div class="col">
-                    <label for="gender">Пол</label>
-                    <select class="form-select" v-model="gender" id="gender">
-                        <option selected value="0">Не указывать</option>
-                        <option value="1">M</option>
-                        <option value="2">Ж</option>
-                    </select>
-                </div>
-            </div>
 
-            <button type="submit" class="btn btn-primary">Регистрация</button>
-        </form>
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+
+                        <div class="form-outline">
+                            <Field v-model="password"  name="password" type="password" id="password" class="form-control form-control-lg"/>
+                            <label class="form-label" for="firstName">Пароль</label>
+                            <ErrorMessage name="password" class="text-danger"/>
+                        </div>
+
+                    </div>
+                    <div class="col-md-6 mb-4">
+
+                        <div class="form-outline">
+                            <Field v-model="passwordConfirm" name="passwordConfirm" type="password" id="confirm_password" class="form-control form-control-lg"/>
+                            <label class="form-label" for="lastName">Подтвердите пароль</label>
+                            <ErrorMessage name="passwordConfirm" class="text-danger"/>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-4 d-flex align-items-center">
+
+                        <div class="form-outline datepicker w-100">
+                            <input v-model="birthDay" class="form-control form-control-lg" type="date"/>
+                            <label class="form-label">Дата рождения</label>
+                        </div>
+
+                    </div>
+                    <div class="col-md-6 mb-4">
+
+                        <h6 class="mb-2 pb-1">Пол: </h6>
+
+                        <div class="form-check form-check-inline">
+                            <input v-model="gender" class="form-check-input" type="radio" name="inlineRadioOptions" id="maleGender"
+                                   value="1"/>
+                            <label class="form-check-label" for="maleGender">Мужской</label>
+                        </div>
+
+                        <div class="form-check form-check-inline">
+                            <input  v-model="gender" class="form-check-input" type="radio" name="inlineRadioOptions" id="femaleGender"
+                                   value="2"/>
+                            <label class="form-check-label" for="femaleGender">Женский</label>
+                        </div>
+
+                        <div class="form-check form-check-inline">
+                            <input v-model="gender" class="form-check-input" type="radio" name="inlineRadioOptions" id="otherGender"
+                                   value="0"/>
+                            <label class="form-check-label" for="otherGender">Другое</label>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-2">
+                    <input class="btn btn-primary btn-lg" type="submit" value="Регистрация"/>
+                </div>
+
+            </Form>
     </div>
 </template>
 
 <script>
+    import useRegister from "@/hooks/useRegister";
+    import {Form, Field, ErrorMessage} from 'vee-validate'
+    import * as yup from 'yup'
+    import {mapGetters} from 'vuex'
     export default {
-        name: "RegisterForm",
+        components: {
+            Form,
+            Field,
+            ErrorMessage,
+        },
         data() {
+            const schema = yup.object({
+                nick:yup.string().required('Заполните ник').min(5, 'Минимум 5 символов'),
+                email: yup.string().required('Зполните email').email('Email не валиден'),
+                password: yup.string().required('Заполните пароль').min(6, 'Минимум 6 символов'),
+                passwordConfirm: yup.string().required().oneOf([yup.ref('password')], 'Пароли не совпадают')
+            })
+
             return {
-                email:'',
-                password:'',
-                passwordConfirm:'',
-                nick:'',
-                birthDay: '',
-                gender:0
+                schema,
             }
         },
         methods: {
@@ -59,18 +117,42 @@
                     password: this.password,
                     passwordConfirm: this.passwordConfirm,
                     nick: this.nick,
-                    age:  this.birthDay ? new Date(this.birthDay) : null,
+                    birth_day: this.birthDay ? new Date(this.birthDay) : null,
                     gender: this.gender,
                 };
 
                 this.$emit('register', user);
+            },
+        },
+        computed: {
+          ...mapGetters({
+              authError: 'auth/getAuthError'
+          })
+        },
+        setup(props) {
+            const {
+                nick,
+                email,
+                password,
+                passwordConfirm,
+                birthDay,
+                gender,
+                errors
+            } = useRegister()
+
+            return {
+                nick,
+                email,
+                password,
+                passwordConfirm,
+                birthDay,
+                gender,
+                errors
             }
         }
     }
 </script>
 
 <style scoped>
-    .login-form-wrapper{
-        width: 700px;
-    }
+
 </style>
