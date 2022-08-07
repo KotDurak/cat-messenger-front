@@ -4,7 +4,6 @@
       <main-header
               :title="name"
               :user="getUser()"
-              @exit="logoutUser"
       />
       <div class="card" v-if="isUserAuth">
         <div class="row g-0">
@@ -25,7 +24,7 @@
             />
             <div class="position-relative">
               <messages-content
-                      v-if="this.interlocutor !== null"
+                      v-if="interlocutor !== null"
                       :messages="messages"
                       :interlocutor="interlocutor"
                       :user="getUser()"
@@ -79,7 +78,6 @@
     data() {
       return {
         name: 'Cat Messenger',
-        interlocutor:null,
         message: '',
         needDown:false,
         showLogin: false,
@@ -92,7 +90,6 @@
         loadContactsById: 'contacts/loadContacts',
         fetchMessages: 'messages/fetchMessages',
         fetchMoreMessages: 'messages/fetchMoreMessages',
-        logout: 'auth/logout',
         refreshUnread: 'contacts/refreshUnread',
         getDeletedChatByUser: 'contacts/getDeletedChatByUser',
         removeFromContacts: 'contacts/removeFromContacts'
@@ -111,12 +108,8 @@
         setContactStatus: 'contacts/setContactStatus',
         addError: 'auth/addError',
         clearErrors: 'auth/clearErrors',
+        setInterlocutor: 'contacts/setInterlocutor'
       }),
-      logoutUser() {
-        this.$socket.emit('user_logout', {})
-        this.logout()
-
-      },
       async loadContacts() {
         if (!this.isUserAuth) {
         } else {
@@ -125,7 +118,6 @@
       },
       async loadMessages(user) {
         await this.loadInterlocuter(user);
-
         if (user.find_by_user) {
           this.setMessages([])
         } else {
@@ -147,13 +139,13 @@
         this.fetchMoreMessages()
       },
       async loadInterlocuter(user) {
-        this.interlocutor = {
+        this.setInterlocutor({
           id: user.id || user.user_id,
           nick: user.nick,
           type: 'user',
           user_data: user,
           restore_by_send: user.restore_by_send || false
-        };
+        })
 
       },
       openLogin() {
@@ -169,7 +161,14 @@
           this.showRegister = false;
           this.$socket.emit('user_login', {user_id: this.getUserId});
           this.clearErrors()
-        })
+        }).catch(error => {
+             if (error.response.data.message) {
+               this.addError(error.response.data.message)
+               return
+             }
+
+             throw error
+          })
       },
       async registerUser(user) {
         this.$store.dispatch('auth/register', user).then(() => {
@@ -264,7 +263,8 @@
       ...mapGetters({
         isUserAuth : 'auth/isUserAuth',
         getUserId: 'auth/getUserId',
-        contacts: 'contacts/contacts'
+        contacts: 'contacts/contacts',
+        interlocutor: 'contacts/getInterlocutor'
       }),
       interlocuterName() {
         if (!this.interlocutor || !this.interlocutor.user_data) {
@@ -289,51 +289,6 @@
       }
     },
     sockets: {
-      newMessage(data) {
-        const chatId = data.chat._id
-        const hasContact = this.contacts.some(c => c.id == chatId)
-
-        if (!hasContact && this.getUserId !== data.sender.id) {
-          this.addContact({
-            id: chatId,
-            name: data.sender.nick,
-            unread:1,
-          })
-          return;
-        }
-
-        if (!this.interlocutor) {
-          this.addUnread(data.chat._id)
-          return;
-        }
-
-        if (this.interlocutor.user_data.find_by_user) {
-          this.interlocutor.user_data.find_by_user = false
-          this.interlocutor.id = data.chat._id.toString()
-          const contactIndex = this.contacts.findIndex(c => c.id == data.message.to)
-          const newContacts = this.contacts.slice();
-          newContacts[contactIndex]['id'] = data.chat._id
-          this.contacts = newContacts
-        }
-
-        if (data.message) {
-          if (this.interlocutor.id == data.chat._id) {
-            this.addMessage({
-              id: data.message._id.toString(),
-              message: data.message.message.toString(),
-              from: data.message.from,
-              time: data.message.time,
-            });
-            this.refreshUnread({
-              chat_id: data.chat._id,
-              user_id: this.getUserId
-            })
-          } else {
-            this.addUnread(data.chat._id)
-          }
-
-        }
-      },
       connect() {
         if (this.needCheckConnect) {
           this.connectToSocket()

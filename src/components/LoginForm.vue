@@ -1,6 +1,7 @@
 <template>
     <div>
         <h3>Логин</h3>
+        <p class="text-danger auth-error" v-if="authError.length > 1">{{authError}}</p>
         <form @submit.prevent="login">
             <div class="row">
                 <div class="col-md-12 mb-12">
@@ -31,6 +32,7 @@
 </template>
 
 <script>
+    import {mapGetters} from 'vuex'
     export default {
         name: "LoginForm",
         data() {
@@ -46,6 +48,11 @@
                     password: this.password,
                 })
             }
+        },
+        computed: {
+            ...mapGetters({
+                authError: 'auth/getAuthError'
+            })
         }
     }
 </script>

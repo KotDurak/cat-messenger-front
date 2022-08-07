@@ -6,7 +6,8 @@ export const contacts = {
     namespaced: true,
     state: () => ({
         contacts: [],
-        searchedUsers:[]
+        searchedUsers:[],
+        interlocutor: null
     }),
     getters: {
         contacts(state) {
@@ -14,6 +15,9 @@ export const contacts = {
         },
         searchedUsers(state) {
             return state.searchedUsers
+        },
+        getInterlocutor(state){
+            return state.interlocutor
         }
     },
     mutations: {
@@ -52,7 +56,7 @@ export const contacts = {
                state.contacts[indexContact]['unread'] += 1
            }
         },
-        refreshUnreadUnread(state, chatId) {
+        refreshUnread(state, chatId) {
             const indexContact = state.contacts.findIndex(c => c.id == chatId)
 
             if (indexContact === -1) {
@@ -69,6 +73,9 @@ export const contacts = {
             }
 
             state.contacts[indexContact]['online'] = statusData.online
+        },
+        setInterlocutor(state, user) {
+            state.interlocutor = user
         }
     },
     actions: {
@@ -86,7 +93,7 @@ export const contacts = {
                 return
             }
 
-            commit('refreshUnreadUnread', data.chat_id)
+            commit('refreshUnread', data.chat_id)
         },
 
         async deleteContact({state, commit}, chatId) {
