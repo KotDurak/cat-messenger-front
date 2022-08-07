@@ -19,10 +19,6 @@
               type: Array,
               default: []
           },
-          view_default: {
-              type: Boolean,
-              default: true
-          }
         },
         data() {
             return {
