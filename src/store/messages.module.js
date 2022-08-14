@@ -30,6 +30,13 @@ export const messages = {
         },
         addMessage(state, message) {
             state.messages.push(message)
+        },
+        setReadMessages(state, userFrom) {
+            state.messages.forEach(m => {
+                if (m.from === userFrom)  {
+                    m.read = true
+                }
+            })
         }
     },
     actions: {

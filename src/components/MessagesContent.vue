@@ -3,7 +3,7 @@
         <div v-intersection="{rootElem:'#messages_wrapper', callback: loadMoreMessages}" class="observer"></div>
         <user-message
                 v-for="message in messages"
-                :key="message.id"
+                :key="message._id"
                 :user="message.from === user.id ? user : interlocutor"
                 :message="message"
                 :is-my="message.from === user.id"
@@ -19,6 +19,7 @@
         date() {
             return {
                 waitingNewMessages: false,
+                scrollLock: false,
             }
         },
         props: {
@@ -53,6 +54,10 @@
                     return;
                 }
 
+                if (this.scrollLock) {
+                    return
+                }
+
                 const lastMessage = this.messages[this.messages.length - 1];
                 this.waitingNewMessages = true;
 
@@ -66,10 +71,15 @@
         updated() {
             if (this.needDown) {
                 this.messagesDown();
+                this.scrollLock = true;
+                setTimeout(() => {
+                    this.scrollLock = false
+                }, 1500)
             } else if (this.waitingNewMessages) {
-                this.messagesDown(20);
+                const height = (this.$refs.list.scrollHeight * 5) / 100
+                this.messagesDown(height);
             }
-        }
+        },
     }
 </script>
 

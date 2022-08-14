@@ -25,6 +25,11 @@
     import useDefaultImages from '@/hooks/useDefaultImages'
 
     export default {
+        data() {
+            return {
+                isOnline: 0
+            }
+        },
         components: {SearchContacts},
         props:{
             contacts: {

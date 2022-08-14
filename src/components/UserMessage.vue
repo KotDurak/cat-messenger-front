@@ -1,13 +1,14 @@
 <template>
-    <div class=" pb-4" :class="{'chat-message-right': isMy, 'chat-message-left': !isMy}" >
+    <div data-testid="message-wrapper" class="pb-4" :class="{'chat-message-right': isMy, 'chat-message-left': !isMy}" >
         <div>
             <img :src="getImgThumb()" class="rounded-circle mr-1" alt="Chris Wood" width="40" height="40">
             <div class="text-muted small text-nowrap mt-2">{{messageTime}}</div>
             <div class="text-muted small text-nowrap">{{messageDate}}</div>
         </div>
-        <div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">
+        <div data-testid="base-message" class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">
             <div class="font-weight-bold mb-1">{{senderName}}</div>
             {{message.message}}
+            <indicator-check v-if="isMy" :checked="message.read || false"/>
         </div>
     </div>
 

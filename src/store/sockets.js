@@ -1,17 +1,17 @@
 export const sockets = {
     namespaced: true,
     state: () => ({
-       notices: []
+        notices: []
     }),
     mutations: {
-      setNotices(state, notices) {
+        setNotices(state, notices) {
             state.notices = notices
-      }
+        }
     },
     getters: {
-      getNotices(state) {
-          return state.notices
-      }
+        getNotices(state) {
+            return state.notices
+        }
     },
     actions: {
         SOCKET_notice({state, commit}, data) {
@@ -32,7 +32,7 @@ export const sockets = {
                 commit('contacts/addContact', {
                     id: chatId,
                     name: data.sender.nick,
-                    unread:1
+                    unread: 1
                 }, {root: true})
 
                 return;
@@ -74,8 +74,23 @@ export const sockets = {
                 }
             }
         },
-        removeNotice({state, commit}, noticeId)  {
+        removeNotice({state, commit, rootGetters}, noticeId) {
             commit('setNotices', state.notices.filter(n => n.id != noticeId))
+        },
+        SOCKET_refreshUnread({state, commit, rootGetters}, data) {
+            const chatId = data.chatId
+            const userId = data.userId
+            const interlocutor = rootGetters['contacts/getInterlocutor']
+
+            if (!chatId || !interlocutor) {
+                return
+            }
+
+            if (!interlocutor.id == chatId) {
+                return
+            }
+
+            commit('messages/setReadMessages', userId, {root: true})
         }
     }
 }

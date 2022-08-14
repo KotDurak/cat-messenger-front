@@ -127,7 +127,7 @@
 
           this.refreshUnread({
             chat_id: user.id,
-            user_id: this.getUserId
+            user_id: this.getUserId,
           })
         }
 
